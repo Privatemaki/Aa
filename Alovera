@@ -1,56 +1,66 @@
--- GLOBAL
+-- 🌿 AUTO FARM TAB GLOBALS
 getgenv().AutoAlovera = false
 
-local player = game.Players.LocalPlayer
+-- 🌿 ALOE VERA (RAYFIELD READY)
+FarmTab:CreateToggle({
+    Name = "🌿 Aloe Vera",
+    CurrentValue = false,
+    Callback = function(Value)
+        getgenv().AutoAlovera = Value
 
-local function getChar()
-    return player.Character or player.CharacterAdded:Wait()
-end
+        if Value then
+            task.spawn(function()
+                loadstring([==[
+                    local player = game.Players.LocalPlayer
+                    getgenv().AutoAlovera = true
 
--- 🔍 FIND ALOVERA
-local function findAlovera()
-    for _, v in pairs(workspace:GetDescendants()) do
-        local infoUI = v:FindFirstChild("PlantInfoUI", true)
-        local prompt = v:FindFirstChildWhichIsA("ProximityPrompt", true)
-
-        if infoUI and prompt then
-            local label = infoUI:FindFirstChildWhichIsA("TextLabel", true)
-
-            if label and label.Text:lower():find("alovera") then
-                local handle = v:FindFirstChild("Handle", true)
-
-                if handle then
-                    return handle, prompt
-                end
-            end
-        end
-    end
-end
-
--- 🌿 MAIN LOOP (compatible sa Rayfield)
-task.spawn(function()
-    while true do
-        task.wait(0.3)
-
-        if getgenv().AutoAlovera then
-            local part, prompt = findAlovera()
-
-            if part then
-                local hrp = getChar():WaitForChild("HumanoidRootPart")
-
-                -- TP
-                hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
-
-                -- INSTANT DIG (spam prompt)
-                if prompt then
-                    for i = 1, 5 do
-                        fireproximityprompt(prompt)
+                    local function getChar()
+                        return player.Character or player.CharacterAdded:Wait()
                     end
-                end
 
-                -- cooldown para hindi mag double TP
-                task.wait(1.2)
-            end
+                    local function findAlovera()
+                        for _, v in pairs(workspace:GetDescendants()) do
+                            if v:IsA("TextLabel") then
+                                local txt = v.Text:lower()
+                                if txt:find("aloe") or txt:find("alovera") then
+                                    local plant = v:FindFirstAncestorOfClass("Model")
+                                    if plant then
+                                        local part = nil
+                                        for _, p in pairs(plant:GetDescendants()) do
+                                            if p:IsA("BasePart") then
+                                                part = p
+                                                break
+                                            end
+                                        end
+                                        local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                        if part then
+                                            return part, prompt
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+
+                    task.spawn(function()
+                        while getgenv().AutoAlovera do
+                            task.wait(0.3)
+                            local part, prompt = findAlovera()
+                            if not getgenv().AutoAlovera then break end
+                            if part then
+                                local hrp = getChar():WaitForChild("HumanoidRootPart")
+                                hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
+                                task.wait(0.2)
+                                if not getgenv().AutoAlovera then break end
+                                if prompt then
+                                    fireproximityprompt(prompt)
+                                end
+                                task.wait(1)
+                            end
+                        end
+                    end)
+                ]==])
+            end)
         end
-    end
-end)
+    end,
+})
