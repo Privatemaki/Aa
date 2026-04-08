@@ -1,0 +1,56 @@
+-- GLOBAL
+getgenv().AutoAlovera = false
+
+local player = game.Players.LocalPlayer
+
+local function getChar()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+-- 🔍 FIND ALOVERA
+local function findAlovera()
+    for _, v in pairs(workspace:GetDescendants()) do
+        local infoUI = v:FindFirstChild("PlantInfoUI", true)
+        local prompt = v:FindFirstChildWhichIsA("ProximityPrompt", true)
+
+        if infoUI and prompt then
+            local label = infoUI:FindFirstChildWhichIsA("TextLabel", true)
+
+            if label and label.Text:lower():find("alovera") then
+                local handle = v:FindFirstChild("Handle", true)
+
+                if handle then
+                    return handle, prompt
+                end
+            end
+        end
+    end
+end
+
+-- 🌿 MAIN LOOP (compatible sa Rayfield)
+task.spawn(function()
+    while true do
+        task.wait(0.3)
+
+        if getgenv().AutoAlovera then
+            local part, prompt = findAlovera()
+
+            if part then
+                local hrp = getChar():WaitForChild("HumanoidRootPart")
+
+                -- TP
+                hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
+
+                -- INSTANT DIG (spam prompt)
+                if prompt then
+                    for i = 1, 5 do
+                        fireproximityprompt(prompt)
+                    end
+                end
+
+                -- cooldown para hindi mag double TP
+                task.wait(1.2)
+            end
+        end
+    end
+end)
