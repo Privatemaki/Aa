@@ -1,0 +1,62 @@
+-- SUNFLOWER TEST TP + DIG
+
+local player = game.Players.LocalPlayer
+
+local function getChar()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+local function doPrompt(prompt)
+    if prompt then
+        prompt:InputHoldBegin()
+        task.wait(prompt.HoldDuration or 0.6)
+        prompt:InputHoldEnd()
+    end
+end
+
+-- 🔥 FIND SUNFLOWER ONLY
+local function findSunflower()
+    for _, v in pairs(workspace:GetDescendants()) do
+        
+        local infoUI = v:FindFirstChild("PlantInfoUI", true)
+        local prompt = v:FindFirstChild("PickupPrompt", true)
+
+        if infoUI and prompt then
+            local label = infoUI:FindFirstChildWhichIsA("TextLabel", true)
+
+            if label and label.Text:lower():find("sunflower") then
+                local handle = v:FindFirstChild("Handle", true)
+
+                if handle then
+                    return handle, prompt
+                end
+            end
+        end
+    end
+end
+
+-- LOOP
+task.spawn(function()
+    while true do
+        local handle, prompt = findSunflower()
+
+        if handle then
+            local hrp = getChar():WaitForChild("HumanoidRootPart")
+
+            print("🌻 SUNFLOWER FOUND!")
+
+            hrp.CFrame = handle.CFrame + Vector3.new(0,2,0)
+            task.wait(0.3)
+
+            doPrompt(prompt)
+
+            task.wait(2)
+        else
+            print("❌ No sunflower yet...")
+        end
+
+        task.wait(1)
+    end
+end)
+
+print("Sunflower test running 🌻")
