@@ -1,4 +1,4 @@
--- SUNFLOWER TEST TP + DIG
+-- 🌻 SUNFLOWER (TOGGLE FIXED)
 
 local player = game.Players.LocalPlayer
 
@@ -14,7 +14,7 @@ local function doPrompt(prompt)
     end
 end
 
--- 🔥 FIND SUNFLOWER ONLY
+-- 🔍 FIND SUNFLOWER
 local function findSunflower()
     for _, v in pairs(workspace:GetDescendants()) do
         
@@ -35,10 +35,14 @@ local function findSunflower()
     end
 end
 
--- LOOP
+-- 🚀 LOOP (FIXED)
 task.spawn(function()
-    while true do
+    while getgenv().AutoSunflower do
+        task.wait()
+
         local handle, prompt = findSunflower()
+
+        if not getgenv().AutoSunflower then break end
 
         if handle then
             local hrp = getChar():WaitForChild("HumanoidRootPart")
@@ -48,15 +52,16 @@ task.spawn(function()
             hrp.CFrame = handle.CFrame + Vector3.new(0,2,0)
             task.wait(0.3)
 
+            if not getgenv().AutoSunflower then break end
+
             doPrompt(prompt)
 
             task.wait(2)
         else
             print("❌ No sunflower yet...")
+            task.wait(1)
         end
-
-        task.wait(1)
     end
 end)
 
-print("Sunflower test running 🌻")
+print("Sunflower ready 🌻")
